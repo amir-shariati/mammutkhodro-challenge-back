@@ -1,0 +1,124 @@
+#the docker compose file version
+version: '3.7'
+
+# you can run multiple services inside one docker compose file
+# define them with their dependencies one after the other
+services:
+
+  # service 1 named backend-dev
+  web-dev:
+
+#    image: backend-dev:1.0.0
+    image: portfolio-web-dev
+
+    # service 1 container name
+    container_name: portfolio-web-dev-cnt
+
+    env_file: ../../arman-solutions/django-challenge/env/.env.dev
+
+    build:
+      # the context (working directory) is the current directory
+      # change this to the directory containing the Dockerfile.dev if in a different place
+      context: .
+      # the Dockerfile.dev to be run
+      dockerfile: ../../arman-solutions/django-challenge/compose/develop/django/Dockerfile
+
+    # backend-dev the exposed port from the underlying service to a port exposed to the outside
+    # in this case backend-dev port 8000 exposed by manage.py runserver to also 8000
+    # to be used to access the container from the outside
+    ports:
+      - '8000:8000'
+
+    # the mounted volumes (folders which are outside docker but being used by docker)
+    volumes:
+      - '.:/app'
+
+#    command: python manage.py runserver 0.0.0.0:8000
+    command: /start
+
+    depends_on:
+      - redis
+      - db
+    networks:
+      - portfolio-net-dev
+
+  db:
+    image: postgres:13.0-alpine
+    container_name: portfolio-db-postgres-cnt
+    volumes:
+      - postgres_data_dev:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=hello_django
+      - POSTGRES_PASSWORD=hello_django
+      - POSTGRES_DB=hello_django_dev
+    networks:
+      - portfolio-net-dev
+
+  redis:
+    image: redis:7-alpine
+    container_name: portfolio-db-redis-cnt
+    networks:
+      - portfolio-net-dev
+
+  celery_worker:
+    build:
+      context: .
+      dockerfile: ../../arman-solutions/django-challenge/compose/develop/django/Dockerfile
+    image: portfolio-celery-worker-dev
+    container_name: portfolio-celery-worker-dev-cnt
+    command: /start-celeryworker
+    volumes:
+      - .:/app
+    env_file:
+      - ../../arman-solutions/django-challenge/env/.env.dev
+    depends_on:
+      - redis
+      - db
+    networks:
+      - portfolio-net-dev
+
+  celery_beat:
+    build:
+      context: .
+      dockerfile: ../../arman-solutions/django-challenge/compose/develop/django/Dockerfile
+    image: portfolio-celery-beat-dev
+    container_name: portfolio-celery-beat-dev-cnt
+    command:
+      - /start-celerybeat
+    volumes:
+      - .:/app
+    env_file:
+      - ../../arman-solutions/django-challenge/env/.env.dev
+    depends_on:
+      - redis
+      - db
+    networks:
+      - portfolio-net-dev
+
+  flower:
+    build:
+      context: .
+      dockerfile: ../../arman-solutions/django-challenge/compose/develop/django/Dockerfile
+    image: portfolio-celery-flower-dev
+    container_name: portfolio-celery-flower-dev-cnt
+    command:
+      - /start-flower
+    volumes:
+      - .:/app
+    env_file:
+      - ../../arman-solutions/django-challenge/env/.env.dev
+    ports:
+      - "5555:5555"
+    depends_on:
+      - redis
+      - db
+    networks:
+      - portfolio-net-dev
+
+volumes:
+  postgres_data_dev:
+
+
+networks:
+  portfolio-net-dev:
+    driver: bridge
