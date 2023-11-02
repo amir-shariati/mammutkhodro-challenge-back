@@ -1,0 +1,4 @@
+# Specifies only test-specific requirements
+# But imports the common ones too
+-r common.txt
+
