@@ -1,0 +1,157 @@
+#the docker compose file version
+version: '3.7'
+
+# you can run multiple services inside one docker compose file
+# define them with their dependencies one after the other
+services:
+
+  # service 1 named backend-dev
+  web-prod:
+    image: portfolio-web-prod
+
+    # service 1 container name
+    container_name: portfolio-web-prod-cnt
+
+    env_file: ../../arman-solutions/django-challenge/env/.env.prod
+
+    build:
+      # the context (working directory) is the current directory
+      # change this to the directory containing the Dockerfile.dev if in a different place
+      context: .
+      # the Dockerfile.dev to be run
+      dockerfile: ../../arman-solutions/django-challenge/compose/production/django/Dockerfile
+
+    # the mounted volumes (folders which are outside docker but being used by docker)
+    volumes:
+      - static_volume:/home/app/web/staticfiles
+      - media_volume:/home/app/web/mediafiles
+
+#    command: gunicorn config.wsgi:application --bind 0.0.0.0:8000
+    command: ./start.sh
+
+#    # to be used to access the container from the outside
+#    ports:
+#      - '8000:8000'
+    expose:
+      - 8000
+    networks:
+      - portfolio-net
+    restart: always
+
+    depends_on:
+      - redis
+      - db
+
+  db:
+    image: postgres:13.0-alpine
+    container_name: portfolio-db-postgres-cnt
+    volumes:
+      - postgres_data_prod:/var/lib/postgresql/data/
+    env_file:
+      - ../../arman-solutions/django-challenge/env/.env.prod.db
+    ports:
+      - '5432:5432'
+    networks:
+      - portfolio-net
+    restart: always
+
+  redis:
+    image: redis:7-alpine
+    container_name: portfolio-db-redis-cnt
+    ports:
+      - '6379:6379'
+    networks:
+      - portfolio-net
+    restart: always
+
+  celery_worker:
+    build:
+      context: .
+      dockerfile: ../../arman-solutions/django-challenge/compose/production/django/Dockerfile
+    image: portfolio-celery-worker-prod
+    container_name: portfolio-celery-worker-prod-cnt
+    command:
+      -  ./start-celeryworker.sh
+    volumes:
+      - static_volume:/home/app/web/staticfiles
+      - media_volume:/home/app/web/mediafiles
+    env_file:
+      - ../../arman-solutions/django-challenge/env/.env.prod
+    networks:
+      - portfolio-net
+    restart: always
+    depends_on:
+      - web-prod
+      - redis
+      - db
+
+  celery_beat:
+    build:
+      context: .
+      dockerfile: ../../arman-solutions/django-challenge/compose/production/django/Dockerfile
+    image: portfolio-celery-beat-prod
+    container_name: portfolio-celery-beat-prod-cnt
+    command:
+      - ./start-celerybeat.sh
+    volumes:
+      - static_volume:/home/app/web/staticfiles
+      - media_volume:/home/app/web/mediafiles
+    env_file:
+      - ../../arman-solutions/django-challenge/env/.env.prod
+    networks:
+      - portfolio-net
+    restart: always
+    depends_on:
+      - web-prod
+      - redis
+      - db
+
+  flower:
+    build:
+      context: .
+      dockerfile: ../../arman-solutions/django-challenge/compose/production/django/Dockerfile
+    image: portfolio-celery-flower-prod
+    container_name: portfolio-celery-flower-prod-cnt
+    command:
+      - ./start-flower.sh
+    volumes:
+      - static_volume:/home/app/web/staticfiles
+      - media_volume:/home/app/web/mediafiles
+    env_file:
+      - ../../arman-solutions/django-challenge/env/.env.prod
+    ports:
+      - "5555:5555"
+    networks:
+      - portfolio-net
+    restart: always
+    depends_on:
+      - web-prod
+      - redis
+      - db
+
+  nginx:
+    build:
+      context: .
+      dockerfile: ../../arman-solutions/django-challenge/compose/production/nginx/Dockerfile
+    image: portfolio-nginx-prod
+    container_name: portfolio-nginx-prod-cnt
+    volumes:
+      - static_volume:/home/app/web/staticfiles
+      - media_volume:/home/app/web/mediafiles
+    ports:
+      - "80:80"
+    networks:
+      - portfolio-net
+    restart: always
+    depends_on:
+      - web-prod
+
+
+volumes:
+  postgres_data_prod:
+  static_volume:
+  media_volume:
+
+networks:
+  portfolio-net:
+    driver: bridge
