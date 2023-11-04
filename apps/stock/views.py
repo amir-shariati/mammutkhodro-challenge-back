@@ -7,6 +7,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from django.db.models import Q, F, Max, Min
+from utils.yahooFinance import Ticker
 from .choices import (
     StockSymbolChoices,
     StockNameChoices,
