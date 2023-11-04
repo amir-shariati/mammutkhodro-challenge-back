@@ -3,9 +3,10 @@ from django.urls import path, include
 
 from .views import (
     get_stock_symbol_choices_view, get_stock_name_choices_view, get_stock_action_choices_view,
+    get_stock_history_data_view, stock_item_add, stock_item_buy, stock_item_sell,
     StockListView, StockRetrieveView,
-    PortfolioListView, PortfolioRetrieveView,
-    PortfolioStockItemListView, PortfolioStockItemRetrieveView,
+    PortfolioListView, PortfolioRetrieveDestroyView,
+    PortfolioStockItemListView, PortfolioStockItemRetrieveDestroyView,
     TransactionListView, TransactionRetrieveView,
 )
 
