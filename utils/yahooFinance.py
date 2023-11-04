@@ -106,6 +106,13 @@ class Ticker:
         return self.ticker.history(start=start, end=end if end is not None else start + datetime.timedelta(days=1))
 
     @staticmethod
+    def df_to_dict(df=None) -> dict:
+        if df is None:
+            return None
+        else:
+            return df.to_dict(orient='records')
+
+    @staticmethod
     def get_row_values(row=None) -> dict:
         if row is None:
             return None
