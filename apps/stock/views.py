@@ -165,7 +165,7 @@ def stock_item_sell(request):
     return Response(data=serializer.data, status=status.HTTP_200_OK)
 
 
-class StockListView(generics.ListCreateAPIView):
+class StockListCreateView(generics.ListCreateAPIView):
     queryset = Stock.objects.all()
     serializer_class = StockSerializer
 
@@ -175,7 +175,7 @@ class StockRetrieveView(generics.RetrieveAPIView):
     serializer_class = StockSerializer
 
 
-class PortfolioListView(generics.ListAPIView):
+class PortfolioListCreateView(generics.ListCreateAPIView):
     queryset = Portfolio.objects.all()
     serializer_class = PortfolioSerializer
 
