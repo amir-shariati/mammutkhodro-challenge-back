@@ -21,10 +21,14 @@ urlpatterns = [
     path('stock/<int:pk>', StockRetrieveView.as_view(), name='stock-detail'),
 
     path('portfolio/', PortfolioListView.as_view(), name='portfolio-list'),
-    path('portfolio/<int:pk>', PortfolioRetrieveView.as_view(), name='portfolio-detail'),
+    path('portfolio/<int:pk>', PortfolioRetrieveDestroyView.as_view(), name='portfolio-detail'),
 
-    path('portfolio-stock-item/', PortfolioStockItemListView.as_view(), name='portfolio-stock-item-list'),
-    path('portfolio-stock-item/<int:pk>', PortfolioStockItemRetrieveView.as_view(), name='portfolio-stock-item-detail'),
+    path('stock-item/add/', stock_item_add, name='stock-item-add'),
+    path('stock-item/buy/', stock_item_buy, name='stock-item-buy'),
+    path('stock-item/sell/', stock_item_sell, name='stock-item-sell'),
+
+    path('stock-item/', PortfolioStockItemListView.as_view(), name='stock-item-list'),
+    path('stock-item/<int:pk>', PortfolioStockItemRetrieveDestroyView.as_view(), name='stock-item-detail'),
 
     path('transaction/', TransactionListView.as_view(), name='transaction-list'),
     path('transaction/<int:pk>', TransactionRetrieveView.as_view(), name='transaction-detail'),
