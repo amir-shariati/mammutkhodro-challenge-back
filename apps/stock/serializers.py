@@ -7,6 +7,21 @@ from .models import (
 )
 
 
+class StockChoiceSerializer(serializers.Serializer):
+    labels = serializers.ListSerializer(child=serializers.CharField(), read_only=True)
+    values = serializers.ListSerializer(child=serializers.CharField(), read_only=True)
+
+
+class StockHistorySerializer(serializers.Serializer):
+    Open = serializers.FloatField(read_only=True)
+    High = serializers.FloatField(read_only=True)
+    Low = serializers.FloatField(read_only=True)
+    Close = serializers.FloatField(read_only=True)
+    Volume = serializers.FloatField(read_only=True)
+    Dividends = serializers.FloatField(read_only=True)
+    Stock_Splits = serializers.FloatField(read_only=True, label='Stock Splits')
+
+
 class StockSerializer(FlexFieldsModelSerializer):
     class Meta:
         model = Stock
