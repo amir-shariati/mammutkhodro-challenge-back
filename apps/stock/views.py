@@ -17,6 +17,7 @@ from .models import (
     Stock, Portfolio, PortfolioStockItem, Transaction
 )
 from .serializers import (
+    StockChoiceSerializer, StockHistorySerializer,
     StockSerializer, PortfolioSerializer, PortfolioStockItemSerializer, TransactionSerializer
 )
 
