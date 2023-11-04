@@ -72,8 +72,84 @@ class PortfolioStockItem(models.Model):
     def set_amount_stock_item(self, amount):
         self.amount_stock_item = amount
 
+    def stock_buy(self, price, transaction_date):
+        portfolio_balance = self.portfolio.balance
+        if portfolio_balance > price:
+            with transaction.atomic():
+                # Yahoo Finance info
+                print('=========================================================')
+                ticker = Ticker(self.stock.symbol)
+                ticker_row_df = ticker.get_stock_history_date(start=transaction_date)
+                ticker_values_dict = Ticker.get_row_values(ticker_row_df)
+                print(f'stock {self.stock.symbol} info : {ticker_values_dict}')
+                ticker_close_value = Ticker.get_row_close_value(ticker_row_df)
+                print(f'stock {self.stock.symbol} close value : {ticker_close_value}')
+                stock_amount = price/ticker_close_value
+                print(f'stock {self.stock.symbol} amount : {stock_amount}')
+
+                # # Stock item instance
+                # self.amount_stock_item = stock_amount if self.amount_stock_item is None \
+                #     else self.amount_stock_item + stock_amount
+                # # self.investment_stock_item = self.investment_stock_item + Decimal.from_float(price)
+                # self.save()
+
+                # Portfolio instance
+                # self.portfolio.balance = portfolio_balance - price
+                self.portfolio.balance = portfolio_balance - Decimal.from_float(price)
+                self.portfolio.save()
+
+                # Transactions instance
+                transaction_obj = self.transactions.create(
+                    buying_price=price,
+                    deposit_amount=stock_amount,
+                    transaction_date=transaction_date
+                )
+
+                # Stock item instance
+                self.amount_stock_item = stock_amount if self.amount_stock_item is None \
+                    else self.amount_stock_item + stock_amount
+                # self.investment_stock_item = self.investment_stock_item + Decimal.from_float(price)
+                self.save()
+
+                return transaction_obj
+
+    def stock_sell(self, amount, transaction_date):
+        portfolio_balance = self.portfolio.balance
+        if self.amount_stock_item >= amount:
+            with transaction.atomic():
+                # Yahoo Finance info
+                print('=========================================================')
+                ticker = Ticker(self.stock.symbol)
+                ticker_row_df = ticker.get_stock_history_date(start=transaction_date)
+                ticker_values_dict = Ticker.get_row_values(ticker_row_df)
+                print(f'stock {self.stock.symbol} info : {ticker_values_dict}')
+                ticker_close_value = Ticker.get_row_close_value(ticker_row_df)
+                print(f'stock {self.stock.symbol} close value : {ticker_close_value}')
+                price = ticker_close_value * amount
+                print(f'stock {self.stock.symbol} sell price : {price}')
+
+                # Portfolio instance
+                self.portfolio.balance = portfolio_balance + Decimal.from_float(price)
+                # self.portfolio.investment = portfolio_investment + Decimal.from_float(price)
+                self.portfolio.save()
+
+                # Transactions instance
+                transaction_obj = self.transactions.create(
+                    selling_price=price,
+                    withdraw_amount=amount,
+                    transaction_date=transaction_date
+                )
+
+                # Stock item instance
+                self.amount_stock_item = self.amount_stock_item - amount
+                # self.amount_stock_item = stock_amount if self.amount_stock_item is None else self.amount_stock_item + stock_amount
+                self.investment_stock_item = self.investment_stock_item + Decimal.from_float(price)
+                self.save()
+
+                return transaction_obj
+
     def buy_stock_admin(self, obj, price, transaction_date):
-    # def buy_stock(self, price, transaction_date):
+        # def buy_stock(self, price, transaction_date):
         portfolio_investment = self.portfolio.investment
         portfolio_balance = self.portfolio.balance
         # price = Decimal.from_float(price)
@@ -154,7 +230,6 @@ class PortfolioStockItem(models.Model):
                 # self.amount_stock_item = stock_amount if self.amount_stock_item is None else self.amount_stock_item + stock_amount
                 self.investment_stock_item = self.investment_stock_item + Decimal.from_float(price)
                 obj.save()
-
 
     def __str__(self):
         return f'{self.portfolio} , {self.stock}'
