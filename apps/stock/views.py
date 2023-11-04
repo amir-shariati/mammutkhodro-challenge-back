@@ -24,15 +24,14 @@ from .serializers import (
 
 @api_view(['GET'])
 def get_stock_symbol_choices_view(request):
-    choices = StockSymbolChoices.choices
-    labels = StockSymbolChoices.labels
-    values = StockSymbolChoices.values
+    serializer = StockChoiceSerializer(
+        instance={
+            "labels": StockSymbolChoices.labels,
+            "values": StockSymbolChoices.values
+        }
+    )
     return Response(
-        data={
-            # 'choices': choices,
-            'labels': labels,
-            'values': values,
-        },
+        data=serializer.data,
         status=status.HTTP_200_OK
     )
 
