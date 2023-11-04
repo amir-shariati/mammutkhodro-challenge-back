@@ -180,7 +180,7 @@ class PortfolioListCreateView(generics.ListCreateAPIView):
     serializer_class = PortfolioSerializer
 
 
-class PortfolioRetrieveView(generics.RetrieveAPIView):
+class PortfolioRetrieveDestroyView(generics.RetrieveDestroyAPIView):
     queryset = Portfolio.objects.all()
     serializer_class = PortfolioSerializer
 
@@ -190,7 +190,7 @@ class PortfolioStockItemListView(generics.ListAPIView):
     serializer_class = PortfolioStockItemSerializer
 
 
-class PortfolioStockItemRetrieveView(generics.RetrieveAPIView):
+class PortfolioStockItemRetrieveDestroyView(generics.RetrieveDestroyAPIView):
     queryset = PortfolioStockItem.objects.all()
     serializer_class = PortfolioStockItemSerializer
 
