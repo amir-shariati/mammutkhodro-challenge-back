@@ -32,6 +32,7 @@ class PortfolioSerializer(FlexFieldsModelSerializer):
     class Meta:
         model = Portfolio
         fields = '__all__'
+        read_only_fields = ('investment',)
 
 
 class PortfolioStockItemSerializer(FlexFieldsModelSerializer):
