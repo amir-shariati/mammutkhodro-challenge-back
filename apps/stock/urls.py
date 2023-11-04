@@ -15,6 +15,8 @@ urlpatterns = [
     path('stock-name/', get_stock_name_choices_view, name='stock-name'),
     path('stock-action/', get_stock_action_choices_view, name='stock-action'),
 
+    path('stock/history/', get_stock_history_data_view, name='stock-history'),
+
     path('stock/', StockListView.as_view(), name='stock-list'),
     path('stock/<int:pk>', StockRetrieveView.as_view(), name='stock-detail'),
 
