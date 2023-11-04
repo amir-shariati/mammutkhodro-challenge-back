@@ -38,15 +38,14 @@ def get_stock_symbol_choices_view(request):
 
 @api_view(['GET'])
 def get_stock_name_choices_view(request):
-    choices = StockNameChoices.choices
-    labels = StockNameChoices.labels
-    values = StockNameChoices.values
+    serializer = StockChoiceSerializer(
+        instance={
+            "labels": StockNameChoices.labels,
+            "values": StockNameChoices.values
+        }
+    )
     return Response(
-        data={
-            # 'choices': choices,
-            'labels': labels,
-            'values': values,
-        },
+        data=serializer.data,
         status=status.HTTP_200_OK
     )
 
