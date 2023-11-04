@@ -49,3 +49,6 @@ class TransactionSerializer(FlexFieldsModelSerializer):
     class Meta:
         model = Transaction
         fields = '__all__'
+        expandable_fields = {
+            'portfolio_stock_item': (PortfolioStockItemSerializer,),
+        }
