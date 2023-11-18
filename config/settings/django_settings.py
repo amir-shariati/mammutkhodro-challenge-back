@@ -169,3 +169,14 @@ MEDIA_ROOT = BASE_DIR / "mediafiles"
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# A list of origins that are authorized to make cross-site HTTP requests.
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:80",
+    "http://127.0.0.1:80",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://127.0.0.1",
+    "http://0.0.0.0",
+    "http://0.0.0.0:80",
+]
