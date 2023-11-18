@@ -55,6 +55,7 @@ THIRD_PARTY_APPS = [
     # add apps which you install using pip
     'rest_framework',
     'drf_spectacular',
+    'corsheaders',
 ]
 
 LOCAL_APPS = [
