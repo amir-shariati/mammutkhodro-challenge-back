@@ -75,12 +75,6 @@ def get_stock_history_data_view(request):
     if symbol is None or symbol not in StockSymbolChoices.values:
         return Response(status=status.HTTP_400_BAD_REQUEST, data={'send correct symbol'})
 
-    # if start is None or end is None:
-    #     pass
-    #
-    # start = datetime.fromisoformat(start[:-1])
-    # end = datetime.fromisoformat(end[:-1])
-
     ticker = Ticker(symbol)
     ticker_row_df = ticker.get_stock_history_date(start=start, end=end)
     ticker_values_dict = Ticker.df_to_dict(ticker_row_df)
